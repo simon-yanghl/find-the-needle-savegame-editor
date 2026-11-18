@@ -13,7 +13,7 @@ public partial class App : Application
         if (dump >= 0 && dump + 2 < e.Args.Length) { File.WriteAllText(e.Args[dump + 2], Dump(SaveGame.Load(e.Args[dump + 1]).Root, "", 0)); Shutdown(); return; }
         Loc.Load();
         int lang = Array.IndexOf(e.Args, "--lang");
-        if (lang >= 0 && lang + 1 < e.Args.Length) Loc.Set(e.Args[lang + 1] == "de", persist: false);
+        if (lang >= 0 && lang + 1 < e.Args.Length) Loc.Set(e.Args[lang + 1], persist: false);
         int shots = Array.IndexOf(e.Args, "--shots");
         string shotDir = shots >= 0 && shots + 1 < e.Args.Length ? e.Args[shots + 1] : null;
         DispatcherUnhandledException += (_, a) =>

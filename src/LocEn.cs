@@ -5,6 +5,10 @@ public static class LocEn
 {
     public static readonly Dictionary<string, string> Map = new()
     {
+        ["debug_used = false beim Speichern"] = "debug_used = false on save",
+        ["debug_used wird beim Speichern immer auf false gesetzt."] = "Every save sets debug_used to false. Game and leaderboard behavior has not been verified.",
+        ["gesperrt (beim Speichern false)"] = "fixed to false on save",
+        ["Slot {0}"] = "Slot {0}",
         // ---- window, sidebar, dialogs
         ["Sprache"] = "Language",
         ["Spielstand"] = "Save slot",

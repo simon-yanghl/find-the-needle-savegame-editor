@@ -39,7 +39,7 @@ public static class GameData
     {
         ["sand_shovel"] = "Sandschaufel", ["spade"] = "Spaten", ["pitchfork"] = "Heugabel", ["broom"] = "Besen", ["bucket"] = "Eimer", ["wheelbarrow"] = "Schubkarre", ["yard_vac"] = "Hofsauger", ["metal_detector"] = "Metalldetektor",
     };
-    public static string ToolName(string id) => ToolDe.TryGetValue(id, out var n) ? L(n) : Ui.Pretty(id);
+    public static string ToolName(string id) => ToolDe.TryGetValue(id, out var n) ? L(n) : ItemName(id);
 
     public static readonly string[] Builds = { "belt", "arm", "arm_standard", "arm_long", "deck", "stair", "scanner", "pole", "generator", "splitter", "u_splitter", "joiner", "u_joiner", "compressor", "wrapper", "silo", "drone", "rake", "cabinet", "depot" };
 
@@ -74,7 +74,7 @@ public static class GameData
         ["hay_drone"] = new("Drohne", "", "#B48CF2"),
         ["robotic_arm"] = new("Roboterarm", "", "#C99BFF"),
     };
-    public static BuildingInfo Building(string type) => Bld.TryGetValue(type ?? "", out var b) ? b with { Name = L(b.Name) } : new(Ui.Pretty(type), "", "#9AA0AE");
+    public static BuildingInfo Building(string type) => Bld.TryGetValue(type ?? "", out var b) ? b with { Name = L(b.Name) } : new(ItemName(type), "", "#9AA0AE");
 
     // ---------- depot goods ----------
     public sealed record Good(string Id, string De, string En, string Group);
@@ -110,7 +110,8 @@ public static class GameData
         new("bioplastic_sheet", "Bioplastik-Folie", "Bioplastic sheet", "Bio"),
     };
     public static Good GoodOf(string id) => Goods.FirstOrDefault(g => g.Id == id) ?? new(id, Ui.Pretty(id), Ui.Pretty(id), "Sonstiges");
-    public static string GoodName(string id) { var g = GoodOf(id); return De ? g.De : g.En; }
+    public static string GoodName(string id) { var g = GoodOf(id); return Zh ? GameNamesZh.Name(id) : De ? g.De : g.En; }
+    public static string ItemName(string id) => Zh ? GameNamesZh.Name(id) : Ui.Pretty(id);
 
     public static readonly string[] PileSizes = { "small", "standard", "big", "huge", "mountain" };
     public static string PileName(string id) => id switch { "small" => L("Klein"), "standard" => L("Standard"), "big" => L("Groß"), "huge" => L("Riesig"), "mountain" => L("Berg"), _ => Ui.Pretty(id) };

@@ -7,3 +7,5 @@ publish/
 *.dat
 *.dat.bak
 *.exe
+.work/
+release/

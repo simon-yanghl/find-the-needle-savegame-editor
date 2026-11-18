@@ -123,7 +123,7 @@ public sealed class GdVar
                     int per = t == P_V2 ? 2 : t == P_V3 ? 3 : 4;
                     int n = r.ReadInt32(); var a = new float[n * per]; for (int i = 0; i < a.Length; i++) a[i] = r.ReadSingle(); v.Value = a; break;
                 }
-            default: throw new InvalidDataException($"Unsupported Godot variant type {t} at 0x{r.BaseStream.Position - 4:x}");
+            default: throw new InvalidDataException(Loc.L("Unsupported Godot variant type {0} at 0x{1:x}", t, r.BaseStream.Position - 4));
         }
         return v;
     }
@@ -178,7 +178,7 @@ public sealed class GdVar
                     int per = t == P_V2 ? 2 : t == P_V3 ? 3 : 4;
                     var a = (float[])Value; w.Write(a.Length / per); foreach (var x in a) w.Write(x); break;
                 }
-            default: throw new InvalidDataException("Unsupported type " + t);
+            default: throw new InvalidDataException(Loc.L("Unsupported type {0}", t));
         }
     }
 

@@ -8,6 +8,7 @@
     <AssemblyName>FindTheNeedleEditor</AssemblyName>
     <RootNamespace>FtnEditor</RootNamespace>
     <Version>2.1.0</Version>
+    <InformationalVersion>2.1.0-zhCN.1</InformationalVersion>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <!-- single exe -->

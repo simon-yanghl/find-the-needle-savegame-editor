@@ -15,10 +15,10 @@ public static class GdCrypt
 
     public static byte[] Decrypt(byte[] file)
     {
-        if (!IsEncrypted(file)) throw new InvalidDataException("Not a GDEC file.");
+        if (!IsEncrypted(file)) throw new InvalidDataException(Loc.L("Not a GDEC file."));
         long len = BitConverter.ToInt64(file, 20);
         int padded = (int)((len + 15) / 16 * 16);
-        if (len < 0 || 44 + padded > file.Length) throw new InvalidDataException("Save file is truncated.");
+        if (len < 0 || 44 + padded > file.Length) throw new InvalidDataException(Loc.L("Save file is truncated."));
         byte[] ecbIn = new byte[padded];
         Buffer.BlockCopy(file, 28, ecbIn, 0, 16);                       // IV
         if (padded > 16) Buffer.BlockCopy(file, 44, ecbIn, 16, padded - 16); // previous cipher blocks
@@ -26,7 +26,7 @@ public static class GdCrypt
         byte[] o = aes.EncryptEcb(ecbIn, PaddingMode.None);
         for (int i = 0; i < padded; i++) o[i] ^= file[44 + i];
         byte[] plain = o.AsSpan(0, (int)len).ToArray();
-        if (!MD5.HashData(plain).AsSpan().SequenceEqual(file.AsSpan(4, 16))) throw new InvalidDataException("Checksum mismatch - wrong key or damaged save.");
+        if (!MD5.HashData(plain).AsSpan().SequenceEqual(file.AsSpan(4, 16))) throw new InvalidDataException(Loc.L("Checksum mismatch - wrong key or damaged save."));
         return plain;
     }
 
@@ -102,8 +102,9 @@ public sealed class SaveGame
     public string Save(bool backup = true)
     {
         SyncMeta();
-        // Fair play: an edited run is marked the way the game marks debug use, so it stays off the leaderboards.
-        if (State.Get("debug_used") is { } dbg) dbg.Bool = true; else State.Set("debug_used", GdVar.NewBool(true));
+        // Fork policy requested by the owner: every editor save writes a Boolean false.
+        // This makes no claim about the game's own handling or leaderboard eligibility.
+        State.Set("debug_used", GdVar.NewBool(false));
         string bak = null;
         if (backup && File.Exists(Path)) bak = Backup(Path, "auto");
         byte[] enc = GdCrypt.Encrypt(Root.ToFile());

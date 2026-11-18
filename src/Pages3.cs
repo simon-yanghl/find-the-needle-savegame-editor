@@ -53,7 +53,7 @@ public static partial class Pages
                 foreach (var (id, max, row) in rows)
                 {
                     int r = Get(id);
-                    bool match = (query == "" || id.Contains(query, StringComparison.OrdinalIgnoreCase) || Ui.Pretty(id).Contains(query, StringComparison.OrdinalIgnoreCase))
+                    bool match = (query == "" || id.Contains(query, StringComparison.OrdinalIgnoreCase) || GameData.ItemName(id).Contains(query, StringComparison.OrdinalIgnoreCase))
                         && (techShow == "all" || (techShow == "open" ? r < max : r >= max));
                     row.Visibility = match ? Visibility.Visible : Visibility.Collapsed; if (match) any++;
                 }
@@ -68,7 +68,7 @@ public static partial class Pages
             var badgeIcon = Icon("", 12);
             var badgeGrid = new Grid(); badgeGrid.Children.Add(badgeText); badgeGrid.Children.Add(badgeIcon);
             var badge = new Border { Width = 30, Height = 30, CornerRadius = new CornerRadius(8), Child = badgeGrid };
-            var name = T(Ui.Pretty(id), 13, Ui.Text, true);
+            var name = T(GameData.ItemName(id), 13, Ui.Text, true);
             var row = Box(null, pad: 0); row.Padding = new Thickness(10, 8, 10, 8); row.Margin = new Thickness(0, 0, 8, 8);
             FrameworkElement center, right;
             Action specific;
@@ -181,10 +181,10 @@ public static partial class Pages
             Seg("Fertig", "techshow", techShow == "done", () => { techShow = "done"; ApplyFilter(); }));
         var totalText = Mono("", 12, Dim); var totalBar = new ContentControl { Focusable = false, Width = 110 };
         updaters.Add(() => { var (h, m) = Progress(cats); totalText.Text = Loc.L("{0} / {1} Ränge", h, m); totalBar.Content = Bar(m > 0 ? (double)h / m : 0, Hay, 6); });
-        var bar = Box(Cols("a,a,*,a,a,a", searchHost, show.M(12, 0, 0, 0).VCenter(), null, totalBar.VCenter().M(0, 0, 10, 0), totalText.M(0, 0, 16, 0),
+        var bar = Box(Flow(searchHost.M(0, 3, 12, 3), show.M(0, 3, 12, 3).VCenter(), H(totalBar.VCenter().M(0, 0, 10, 0), totalText).M(0, 3, 16, 3).VCenter(),
             H(Btn("Alle +1", () => SetAll((_, r, m) => Math.Min(m, r + 1), cats)).M(0, 0, 6, 0),
               Btn("Zurücksetzen", () => { if (Dlg.Confirm("Technik zurücksetzen", "Alle Karten auf Rang 0 setzen? (Die Start-Karte „Yard“ bleibt.)", "Zurücksetzen", true)) SetAll((id, _, _) => id == "yard" ? 1 : 0, cats); }).M(0, 0, 6, 0),
-              Btn("Alles auf MAX", () => SetAll((_, _, m) => m, cats), "BtnAccent", ""))), pad: 12);
+              Btn("Alles auf MAX", () => SetAll((_, _, m) => m, cats), "BtnAccent", "")).M(0, 3, 0, 3)), pad: 12);
 
         RefreshAll(); ApplyFilter();
         var navScroll = new ScrollViewer { Content = nav, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Focusable = false, Margin = new Thickness(26, 2, 0, 26) };
@@ -249,12 +249,12 @@ public static partial class Pages
         // ---- toolbar
         var fillBox = NumBox(depotFill, v => depotFill = v, 0, 1, 1e9, 90);
         void FillAll() { foreach (var id in ids) if (Get(id) < depotFill) Set(id, (int)depotFill); RefreshAll(); ApplyFilter(); MainWindow.I.Toast(Loc.L("Alle Waren auf {0} aufgefüllt", Num(depotFill))); }
-        var tools = Box(Cols("a,a,a,a,*,a,a",
-            T("Auffüllen auf", 12, Dim).M(0, 0, 8, 0), fillBox.M(0, 0, 8, 0),
-            Btn("Alle auffüllen", () => { Keyboard.ClearFocus(); FillAll(); }, "BtnAccent", "").M(0, 0, 6, 0),
-            Btn("+100 je Ware auf Lager", () => { foreach (var id in ids) if (Get(id) > 0) Set(id, Get(id) + 100); RefreshAll(); }).M(0, 0, 6, 0), null,
-            SegHost(Seg("Alle Waren", "depshow", depotShow == "all", () => { depotShow = "all"; ApplyFilter(); }), Seg("Nur auf Lager", "depshow", depotShow == "stocked", () => { depotShow = "stocked"; ApplyFilter(); })).VCenter().M(0, 0, 10, 0),
-            Btn("Depot leeren", () => { if (!Dlg.Confirm("Depot leeren", "Alle Waren aus dem Depot entfernen?", "Leeren", true)) return; foreach (var id in ids) Set(id, 0); RefreshAll(); ApplyFilter(); }, "Btn", "")), pad: 12);
+        var tools = Box(Flow(
+            H(T("Auffüllen auf", 12, Dim).M(0, 0, 8, 0), fillBox).M(0, 3, 8, 3),
+            Btn("Alle auffüllen", () => { Keyboard.ClearFocus(); FillAll(); }, "BtnAccent", "").M(0, 3, 6, 3),
+            Btn("+100 je Ware auf Lager", () => { foreach (var id in ids) if (Get(id) > 0) Set(id, Get(id) + 100); RefreshAll(); }).M(0, 3, 6, 3),
+            SegHost(Seg("Alle Waren", "depshow", depotShow == "all", () => { depotShow = "all"; ApplyFilter(); }), Seg("Nur auf Lager", "depshow", depotShow == "stocked", () => { depotShow = "stocked"; ApplyFilter(); })).VCenter().M(0, 3, 10, 3),
+            Btn("Depot leeren", () => { if (!Dlg.Confirm("Depot leeren", "Alle Waren aus dem Depot entfernen?", "Leeren", true)) return; foreach (var id in ids) Set(id, 0); RefreshAll(); ApplyFilter(); }, "Btn", "").M(0, 3, 0, 3)), pad: 12);
 
         // ---- goods, grouped
         var body = new StackPanel();

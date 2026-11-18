@@ -24,18 +24,16 @@
   <img src="docs/radar-xray.png" width="760" alt="3D haystack radar in x-ray mode">
 </p>
 
-Unofficial fan tool, not affiliated with the developers of Find The Needle. The interface is in **English and German** – switch with **EN / DE** in the title bar.
+Unofficial fan tool, not affiliated with the developers of Find The Needle. The interface is in **Simplified Chinese, English and German** – switch with **中文 / EN / DE** in the title bar.
 
-## 🏁 Fair play: edited saves stay off the leaderboards
+## Fork save behavior
 
-Find The Needle has online leaderboards. **Anything edited with this tool does not count for them – on purpose.**
+This fork adds Simplified Chinese. See [简体中文说明](README.zh-CN.md).
+Upstream: [Yukitus86/find-the-needle-savegame-editor](https://github.com/Yukitus86/find-the-needle-savegame-editor), MIT, base commit `fd9d7ea836eca9a6756105ca03288b20c9935c48` (v2.1.0).
 
-- Every time the editor saves a slot, it sets `debug_used = true`, the same mark the game itself uses when its debug menu was used. A new game without edits counts again.
-- The career records in `profile.cfg` feed the leaderboards, so the **Career** tab is read-only.
-- The `board_*` fields, `debug_used` and `run_timed` are locked in the raw data view.
+Every ordinary editor save writes `state.debug_used = false` as a Boolean, including when its old value is true or absent. This differs from upstream, which writes true. Game loading and leaderboard eligibility have not been verified. No claim of leaderboard eligibility is made.
 
-This cannot be switched off, and the editor never talks to any server. If you care about your leaderboard spot, **do not save with this editor**. Just looking around (radar, needles, stats) without saving changes nothing.
-
+Automatic backups preserve the previous file. Restoring a backup and exporting decrypted data preserve their contents; ordinary Save applies the false policy. Career/profile.cfg remains read-only. The raw view still locks board_* and run_timed; debug_used is managed by Save.
 ## 📡 Haystack radar
 
 The pile hides 24 needles under metres of hay. The save stores the full height map of the pile and the exact position of every needle – the radar draws both.
@@ -80,9 +78,9 @@ The pile hides 24 needles under metres of hay. The save stores the full height m
 
 Also:
 
-- 🏁 Saving marks the run as not ranked (see [Fair play](#-fair-play-edited-saves-stay-off-the-leaderboards))
+- 🏁 Saving sets debug_used=false (see Fork save behavior; game and leaderboard behavior unverified)
 - Reads and writes Godot's binary Variant format itself; values the editor does not know are kept as they are
-- English and German interface, switch with **EN / DE** in the title bar; the choice is kept in `%APPDATA%\FindTheNeedleEditor\settings.ini`
+- Simplified Chinese, English and German interface, switch with **中文 / EN / DE** in the title bar; the choice is kept in `%APPDATA%\FindTheNeedleEditor\settings.ini`
 - Finds the save folder on its own; any other save file can be opened with **Open file …**
 - Single self-contained exe, no installation, no .NET runtime needed
 
@@ -123,7 +121,7 @@ build.cmd
 
 It builds and publishes the single-file exe next to the script. Developer aids:
 
-- `FindTheNeedleEditor.exe --shots <folder> [--lang en|de]` renders every tab plus the radar views to PNG and exits
+- `FindTheNeedleEditor.exe --shots <folder> [--lang en|de|zh-CN]` renders every tab plus the radar views to PNG and exits
 - `FindTheNeedleEditor.exe --dump <save> <out.txt>` writes the decrypted save as a text tree
 
 ## Layout

@@ -1,0 +1,18 @@
+{
+  "sourceSha256": "274CD198DA99059F4A2029F9B45465729AFEDCEB14CA1BC94A7F7209B366E5E9",
+  "sourceBytes": 1010860,
+  "md5Verified": true,
+  "byteExactVariantRoundTrip": true,
+  "sourceDebugUsed": false,
+  "sourceDebugUsedType": "bool",
+  "sourceRunTimed": "true",
+  "normalSaveForcesFalse": true,
+  "normalSaveOnlyExpectedChanges": true,
+  "editedMoneyRereadExact": true,
+  "falseFlagReencryptedAndMd5Verified": true,
+  "allOtherFieldsAndTypesByteExact": true,
+  "subsequentNormalSaveKeepsFalse": true,
+  "gameLoadTested": false,
+  "leaderboardTested": false,
+  "sourceUnchanged": true
+}

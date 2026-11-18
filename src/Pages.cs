@@ -96,7 +96,7 @@ public static partial class Pages
         ((TextBlock)ringCenter.Children[0]).HorizontalAlignment = HorizontalAlignment.Center; ((TextBlock)ringCenter.Children[1]).HorizontalAlignment = HorizontalAlignment.Center;
         var pileInfo = V(
             H(Icon("", 13, Hay).M(0, 0, 8, 0), Caps("Heuhaufen")),
-            T($"{GameData.PileName(s.Meta?.Str("pile_size"))} · {Ui.Pretty(s.Meta?.Str("map"))}", 15, Ui.Text, true).M(0, 10, 0, 10),
+            T($"{GameData.PileName(s.Meta?.Str("pile_size"))} · {Loc.L(Ui.Pretty(s.Meta?.Str("map")))}", 15, Ui.Text, true).Tip(s.Meta?.Str("map")).M(0, 10, 0, 10),
             Cols("110,*", T("Noch da", 12, Dim), NumBox(total, v => { st.SetNum("hay_total", v); Dirty(); }, 0, 0, 1e15, 150).Left()).M(0, 0, 0, 6),
             Cols("110,*", T("Zu Beginn", 12, Dim), NumBox(init, v => { st.SetNum("hay_initial", v); Dirty(); }, 0, 0, 1e15, 150).Left()).M(0, 0, 0, 6),
             Cols("110,*", T("Raster", 12, Dim), Mono($"{s.Grid} × {s.Grid} · {s.Cell:0.##} m", 12, Dim)));
@@ -267,7 +267,7 @@ public static partial class Pages
                 int idx = i; string cur = Z(hot[i]);
                 var key = new Border { Width = 22, Height = 22, CornerRadius = new CornerRadius(6), Background = Bg4, Child = Mono((i + 1).ToString(), 11.5, Ui.Text) };
                 ((TextBlock)key.Child).HorizontalAlignment = HorizontalAlignment.Center;
-                var slot = Box(V(Cols("a,*", key, cur == "" ? T("leer", 11, Faint).M(8, 0, 0, 0) : null), Combo(known, cur, v => { hot[idx] = v + "\0"; Dirty(); Reload(); }, v => v == "" ? "(leer)" : Ui.Pretty(v), 128).M(0, 10, 0, 0)), pad: 10);
+                var slot = Box(V(Cols("a,*", key, cur == "" ? T("leer", 11, Faint).M(8, 0, 0, 0) : null), Combo(known, cur, v => { hot[idx] = v + "\0"; Dirty(); Reload(); }, v => v == "" ? "(leer)" : GameData.ItemName(v), 128).M(0, 10, 0, 0)), pad: 10);
                 slot.Margin = new Thickness(0, 0, 8, 8); slot.BorderBrush = cur == "" ? Line : Alpha(Steel, 0.35);
                 hotRow.Children.Add(slot);
             }
@@ -280,17 +280,17 @@ public static partial class Pages
             foreach (var kv in gifts.Items.ToList())
             {
                 string id = kv.Key.ToString(); var val = kv.Value;
-                giftPanel.Children.Add(Cols("a,*,a,a", Icon("", 13, Hay).M(0, 0, 10, 0), T(Ui.Pretty(id), 12.5), Stepper(val.Num, 0, 999, v => { val.Num = v; Dirty(); }).M(0, 0, 8, 0),
+                giftPanel.Children.Add(Cols("a,*,a,a", Icon("", 13, Hay).M(0, 0, 10, 0), T(GameData.ItemName(id), 12.5).Tip(id), Stepper(val.Num, 0, 999, v => { val.Num = v; Dirty(); }).M(0, 0, 8, 0),
                     Btn("", () => { gifts.Remove(id); Dirty(); Reload(); }, "BtnGhost", "")).M(0, 0, 0, 6));
             }
             if (gifts.Items.Count == 0) giftPanel.Children.Add(T("Keine Geschenke warten auf Abholung.", 12, Dim).M(0, 0, 0, 8));
             string pick = known.Skip(1).FirstOrDefault() ?? "belt";
-            giftPanel.Children.Add(H(Combo(known.Skip(1), pick, v => pick = v, Ui.Pretty, 150), Btn("Geschenk hinzufügen", () => { if (gifts.Get(pick) is { } g) g.Num += 1; else gifts.Set(pick, GdVar.NewInt(1)); Dirty(); Reload(); }, "Btn", "").M(8, 0, 0, 0)).M(0, 6, 0, 0));
+            giftPanel.Children.Add(H(Combo(known.Skip(1), pick, v => pick = v, GameData.ItemName, 150), Btn("Geschenk hinzufügen", () => { if (gifts.Get(pick) is { } g) g.Num += 1; else gifts.Set(pick, GdVar.NewInt(1)); Dirty(); Reload(); }, "Btn", "").M(8, 0, 0, 0)).M(0, 6, 0, 0));
         }
         var fresh = st.Get("fresh_builds"); int freshN = fresh?.Strings?.Length ?? 0;
         var freshCard = Card("„Neu“-Abzeichen", V(
             T(freshN == 0 ? "Keine Bauteile sind als neu markiert." : Loc.L("{0} Bauteile sind im Baukatalog als neu markiert:", freshN), 12, Dim).Wrap(),
-            freshN == 0 ? null : Flow(fresh.Strings.Select(f => (UIElement)Pill(Ui.Pretty(Z(f)), Steel).M(0, 0, 6, 6)).ToArray()).M(0, 10, 0, 4),
+            freshN == 0 ? null : Flow(fresh.Strings.Select(f => (UIElement)Pill(GameData.ItemName(Z(f)), Steel).Tip(Z(f)).M(0, 0, 6, 6)).ToArray()).M(0, 10, 0, 4),
             freshN == 0 ? null : Btn("Abzeichen entfernen", () => { fresh.Value = Array.Empty<string>(); st.Get("fresh_since")?.Dict?.Items.Clear(); Dirty(); Reload(); }, "Btn", "").Left().M(0, 6, 0, 0)), icon: "");
 
         return Scroll(V(toolHead.M(2, 0, 10, 12), toolWrap,
@@ -396,7 +396,7 @@ public static partial class Pages
             foreach (var item in list.ToList())
             {
                 var x = Btn("", () => { list.Remove(item); Dirty(); Reload(); }, "BtnGhost", ""); x.Padding = new Thickness(4, 2, 2, 2); x.FontSize = 9;
-                wrap.Children.Add(new Border { Background = Alpha(color, 0.12), CornerRadius = new CornerRadius(12), Padding = new Thickness(11, 3, 5, 3), Margin = new Thickness(0, 0, 6, 6), Child = H(T(Ui.Pretty(item.Str), 12, color), x) }.Tip(item.Str));
+                wrap.Children.Add(new Border { Background = Alpha(color, 0.12), CornerRadius = new CornerRadius(12), Padding = new Thickness(11, 3, 5, 3), Margin = new Thickness(0, 0, 6, 6), Child = H(T(GameData.ItemName(item.Str), 12, color), x) }.Tip(item.Str));
             }
             var add = new TextBox { Width = 150, Tag = key }; add.Tip("id eintippen und Enter");
             add.KeyDown += (_, e) => { if (e.Key == Key.Enter && add.Text.Trim() != "") { list.Add(GdVar.NewString(add.Text.Trim())); Dirty(); Reload(); } };
@@ -458,7 +458,7 @@ public static partial class Pages
             double maxSum = top.Max(g => g.sum);
             analysis.Children.Add(Caps("Wofür das Geld draufging").M(0, 16, 0, 10));
             foreach (var g in top)
-                analysis.Children.Add(Cols("150,*,110", T(Ui.Pretty(g.Key.id), 12), Bar(g.sum / maxSum, kindColor[g.Key.kind], 8, Brushes.Transparent).VCenter().M(0, 0, 10, 0), Mono($"{Num(g.sum)} $ · {g.n}×", 11.5, Dim).Right()).M(0, 0, 0, 7));
+                analysis.Children.Add(Cols("150,*,110", T(GameData.ItemName(g.Key.id), 12).Tip(g.Key.id), Bar(g.sum / maxSum, kindColor[g.Key.kind], 8, Brushes.Transparent).VCenter().M(0, 0, 10, 0), Mono($"{Num(g.sum)} $ · {g.n}×", 11.5, Dim).Right()).M(0, 0, 0, 7));
         }
         var spend = Card("Ausgaben-Analyse", analysis, entries.Count == 0 ? null : Btn("Protokoll leeren", () => { if (Dlg.Confirm("Kaufprotokoll leeren", "Alle Einträge im Kaufprotokoll löschen?", "Leeren", true)) { log.Clear(); Dirty(); Reload(); } }, "BtnGhost", ""), "");
 

@@ -107,7 +107,7 @@ public sealed class MainWindow : Window
     public MainWindow(SaveGame carrySave = null, string page = null)
     {
         I = this; carry = carrySave; carryPage = page;
-        Title = "Find The Needle – Save Editor";
+        Title = "Find The Needle – " + Loc.L("Save Editor");
         Width = 1320; Height = 840; MinWidth = 1060; MinHeight = 640;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         App.Trace("ctor a");
@@ -144,7 +144,7 @@ public sealed class MainWindow : Window
         Button maxBtn = null;
         maxBtn = Cap("", () => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized);
         var caps = H(Cap("", () => WindowState = WindowState.Minimized), maxBtn, Cap("", Close, "#C42B1C"));
-        var lang = SegHost(Seg("EN", "lang", !Loc.De, () => SwitchLang(false)), Seg("DE", "lang", Loc.De, () => SwitchLang(true)));
+        var lang = SegHost(Seg("中文", "lang", Loc.Zh, () => SwitchLang("zh-CN")), Seg("EN", "lang", Loc.Language == "en", () => SwitchLang("en")), Seg("DE", "lang", Loc.De, () => SwitchLang("de")));
         lang.VerticalAlignment = VerticalAlignment.Center; lang.Tip("Sprache");
         WindowChrome.SetIsHitTestVisibleInChrome(lang, true);
         var titleBar = new Grid { Height = 42, Background = Bg0 };
@@ -163,7 +163,7 @@ public sealed class MainWindow : Window
             nav.Children.Add(rb);
         }
         saveBtn = Btn("Speichern", DoSave, "BtnAccent", ""); saveBtn.Padding = new Thickness(12, 9, 12, 9);
-        saveBtn.Tip("Strg+S · legt vorher automatisch ein Backup an");
+        saveBtn.Tip(Loc.L("Strg+S · legt vorher automatisch ein Backup an") + "\n" + Loc.L("debug_used wird beim Speichern immer auf false gesetzt."));
         var reload = Btn("", () => { if (ConfirmDiscard()) LoadSlot(Save?.Path); }, "Btn", "").Tip("Spielstand neu von der Platte laden"); reload.Padding = new Thickness(10, 9, 10, 9);
         gameWarn = new Border
         {
@@ -219,11 +219,11 @@ public sealed class MainWindow : Window
     }
 
     /// <summary>Rebuilds the whole window in the other language; the loaded save (with unsaved edits) and the page stay.</summary>
-    void SwitchLang(bool de)
+    void SwitchLang(string code)
     {
-        if (Loc.De == de) return;
+        if (Loc.Language == code) return;
         Keyboard.ClearFocus();
-        Loc.Set(de);
+        Loc.Set(code);
         var w = new MainWindow(Save, current?.Key) { WindowStartupLocation = WindowStartupLocation.Manual, Left = Left, Top = Top, Width = Width, Height = Height };
         if (WindowState == WindowState.Maximized) w.WindowState = WindowState.Maximized;
         switching = true;
@@ -252,7 +252,7 @@ public sealed class MainWindow : Window
         {
             bool active = Save != null && string.Equals(Save.Path, f, StringComparison.OrdinalIgnoreCase);
             string name = Path.GetFileNameWithoutExtension(f);
-            string label = name.StartsWith("slot_") && int.TryParse(name[5..], out int n) ? $"Slot {n + 1}" : name;
+            string label = name.StartsWith("slot_") && int.TryParse(name[5..], out int n) ? Loc.L("Slot {0}", n + 1) : name;
             string line2 = "nicht lesbar"; double frac = 0; string needles = "";
             try
             {
@@ -339,7 +339,7 @@ public sealed class MainWindow : Window
         {
             string bak = Save.Save();
             BuildSlots(); UpdateDirty();
-            Toast(Loc.L("Gespeichert") + (bak != null ? " · " + Loc.L("Backup angelegt") : "") + " · " + Loc.L("Lauf zählt nicht für Bestenlisten"));
+            Toast(Loc.L("Gespeichert") + (bak != null ? " · " + Loc.L("Backup angelegt") : "") + " · " + Loc.L("debug_used = false beim Speichern"));
             if (current?.Key == "backups") Refresh();
         }
         catch (Exception ex) { Dlg.Info("Speichern fehlgeschlagen", ex.Message); }

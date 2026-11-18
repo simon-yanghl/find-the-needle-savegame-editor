@@ -1,0 +1,6 @@
+PASS save forces false from True
+PASS save forces false from False
+PASS save forces false from missing
+PASS encrypted checksum rejects tampering
+PASS three languages, persisted setting and old settings
+PASS Chinese dictionary covers English keys and preserves format arguments

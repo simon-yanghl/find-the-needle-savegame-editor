@@ -74,7 +74,7 @@ public static partial class Pages
             if (value is "true" or "false")
             {
                 string k = key;
-                flags.Children.Add(Switch(Ui.Pretty(key), value == "true", v => { cfg.Set(line, k, v ? "true" : "false"); Touch(); }).M(0, 0, 24, 8)
+                flags.Children.Add(Switch(GameData.ItemName(key), value == "true", v => { cfg.Set(line, k, v ? "true" : "false"); Touch(); }).M(0, 0, 24, 8)
                     .Tip(key == "debug_tainted" ? "Profil ist als „Debug benutzt“ markiert. Ausschalten macht es wieder sauber." : key));
             }
             else if (double.TryParse(value, NumberStyles.Float, Inv, out double num))
@@ -186,10 +186,10 @@ public static partial class Pages
                 }
                 catch (Exception ex) { Dlg.Info("Fehler", ex.Message); }
             }, "Btn", "");
-            var del = Btn("", () => { if (Dlg.Confirm("Backup löschen", f.Name + " endgültig löschen?", "Löschen", true)) { try { f.Delete(); } catch { } Reload(); } }, "BtnGhost", "");
+            var del = Btn("", () => { if (Dlg.Confirm("Backup löschen", f.Name + Loc.L(" endgültig löschen?"), "Löschen", true)) { try { f.Delete(); } catch { } Reload(); } }, "BtnGhost", "");
             var row = Box(Cols("a,150,*,a,a,a",
                 new Border { Width = 34, Height = 34, CornerRadius = new CornerRadius(9), Background = Alpha(color, 0.13), Child = Icon(profile ? "" : "", 14, color) }.M(0, 0, 12, 0),
-                V(T(profile ? "Karriere-Profil" : slot.StartsWith("slot_") && int.TryParse(slot[5..], out int n) ? $"Slot {n + 1}" : slot, 13, Ui.Text, true), T(f.LastWriteTime.ToString(Loc.De ? "dd.MM.yyyy · HH:mm:ss" : "yyyy-MM-dd · HH:mm:ss"), 11.5, Dim)),
+                V(T(profile ? "Karriere-Profil" : slot.StartsWith("slot_") && int.TryParse(slot[5..], out int n) ? Loc.L("Slot {0}", n + 1) : slot, 13, Ui.Text, true), T(f.LastWriteTime.ToString(Loc.De ? "dd.MM.yyyy · HH:mm:ss" : "yyyy-MM-dd · HH:mm:ss"), 11.5, Dim)),
                 T(info, 12, Dim), Pill(tag, gameBak ? Steel : tag == "manuell" ? Hay : Dim).M(0, 0, 14, 0), restore.VCenter().M(0, 0, 4, 0), gameBak ? null : del.VCenter()), pad: 10);
             row.Margin = new Thickness(0, 0, 0, 6); row.BorderBrush = mine ? Alpha(Hay, 0.25) : Line;
             list.Children.Add(row);
@@ -270,7 +270,8 @@ public static partial class Pages
         bool container = v.Type is GdVar.DICT or GdVar.ARRAY || (v.Value is Array && v.Value is not double[] { Length: <= 4 } && v.Value is not long[] { Length: <= 4 });
         if (!container)
         {
-            if (key != null && (key.StartsWith("board_") || key is "debug_used" or "run_timed")) return RawRow(depth, key, v, null, v.ToString() + "   · " + Loc.L("gesperrt (Bestenliste)"), null);
+            if (key == "debug_used") return RawRow(depth, key, v, null, v.ToString() + "   · " + Loc.L("gesperrt (beim Speichern false)"), null);
+            if (key != null && (key.StartsWith("board_") || key is "run_timed")) return RawRow(depth, key, v, null, v.ToString() + "   · " + Loc.L("gesperrt (Bestenliste)"), null);
             if (v.Type == GdVar.BOOL) return RawRow(depth, key, v, null, null, null, Switch("", v.Bool, b => { v.Bool = b; Dirty(); }));
             if (v.Value is double[] da)
             {

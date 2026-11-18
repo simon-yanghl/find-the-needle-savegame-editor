@@ -39,6 +39,11 @@ public static class Ui
     public static string Short(double v)
     {
         double a = Math.Abs(v);
+        if (Loc.Zh)
+        {
+            if (a >= 1e8) return (v / 1e8).ToString("0.##", Inv) + "亿";
+            if (a >= 1e4) return (v / 1e4).ToString("0.##", Inv) + "万";
+        }
         if (a >= 1e9) return (v / 1e9).ToString("0.##", Inv) + (Loc.De ? " Mrd" : " B");
         if (a >= 1e6) return (v / 1e6).ToString("0.##", Inv) + (Loc.De ? " Mio" : " M");
         if (a >= 1e4) return (v / 1e3).ToString("0.#", Inv) + " k";
@@ -48,6 +53,7 @@ public static class Ui
     {
         if (secs < 0) return "–";
         var t = TimeSpan.FromSeconds(secs);
+        if (Loc.Zh) return t.TotalHours >= 1 ? $"{(int)t.TotalHours}小时 {t.Minutes:00}分" : $"{t.Minutes}分 {t.Seconds:00}秒";
         return t.TotalHours >= 1 ? $"{(int)t.TotalHours}h {t.Minutes:00}m" : $"{t.Minutes}m {t.Seconds:00}s";
     }
     public static bool TryParse(string s, out double v)
@@ -83,7 +89,7 @@ public static class Ui
     // ---------- layout ----------
     public static T M<T>(this T e, double l, double t = 0, double r = 0, double b = 0) where T : FrameworkElement { e.Margin = new Thickness(l, t, r, b); return e; }
     public static T W<T>(this T e, double w) where T : FrameworkElement { e.Width = w; return e; }
-    public static T Tip<T>(this T e, string tip) where T : FrameworkElement { e.ToolTip = Loc.L(tip); ToolTipService.SetInitialShowDelay(e, 350); return e; }
+    public static T Tip<T>(this T e, string tip) where T : FrameworkElement { e.ToolTip = new TextBlock { Text = Loc.L(tip), TextWrapping = TextWrapping.Wrap, MaxWidth = 520 }; ToolTipService.SetInitialShowDelay(e, 350); return e; }
     public static T Col<T>(this T e, int c, int span = 1) where T : UIElement { Grid.SetColumn(e, c); if (span > 1) Grid.SetColumnSpan(e, span); return e; }
     public static T Row<T>(this T e, int r, int span = 1) where T : UIElement { Grid.SetRow(e, r); if (span > 1) Grid.SetRowSpan(e, span); return e; }
     public static T DockTo<T>(this T e, System.Windows.Controls.Dock d) where T : UIElement { DockPanel.SetDock(e, d); return e; }
@@ -178,6 +184,9 @@ public static class Ui
         double last = value;
         void Commit()
         {
+            // Formatting may display fewer digits than the stored value. Merely
+            // focusing the field (including switching language) must not round it.
+            if (tb.Text == Num(last, decimals)) return;
             if (TryParse(tb.Text, out double v))
             {
                 v = Math.Clamp(decimals == 0 ? Math.Round(v) : v, min, max);
@@ -243,7 +252,7 @@ public static class Ui
     public static ComboBox Combo(IEnumerable<string> items, string selected, Action<string> changed, Func<string, string> label = null, double width = 160)
     {
         var cb = new ComboBox { Width = width };
-        foreach (var it in items) cb.Items.Add(new ComboBoxItem { Content = Loc.L(label?.Invoke(it) ?? it), Tag = it, IsSelected = it == selected });
+        foreach (var it in items) cb.Items.Add(new ComboBoxItem { Content = Loc.L(label?.Invoke(it) ?? it), Tag = it, ToolTip = it, IsSelected = it == selected });
         cb.SelectionChanged += (_, _) => { if (cb.SelectedItem is ComboBoxItem i) changed((string)i.Tag); };
         return cb;
     }
