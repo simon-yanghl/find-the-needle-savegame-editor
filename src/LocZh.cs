@@ -5,6 +5,16 @@ public static class LocZh
 {
     public static readonly Dictionary<string, string> Map = new()
     {
+        ["Depot-Bauhistorie (Experiment)"] = "物资站建造记录数（实验）",
+        ["{0} vorhandene Depots · {1} Baueinträge"] = "现有物资站 {0} 个 · 建造记录 {1} 条",
+        ["Experiment: Nur build/depot-Einträge in purchase_log kürzen. Ob das den Baupreis senkt, ist nicht bestätigt. Gebäude und Geld bleiben unverändert."] = "实验：仅减少 purchase_log 中的 build/depot 记录。尚未确认能否降低建造价格；实际建筑和资金保持不变。",
+        ["Baueinträge behalten"] = "保留建造记录数",
+        ["Historienzahl anwenden"] = "应用记录数",
+        ["Nur 0 bis zur aktuellen Anzahl. Neueste Einträge werden zuerst entfernt; erst Speichern schreibt die Änderung. Keine fiktiven Käufe hinzufügen."] = "可设为 0 至当前记录数。优先移除最新记录；点击“保存”后才写入文件。不添加虚构购买记录。",
+        ["Depot-Bauhistorie kürzen"] = "减少物资站建造记录",
+        ["{0} neueste Depot-Baueinträge löschen und {1} behalten? Gebäude und Geld bleiben unverändert. Die Ausgabenanalyse ändert sich."] = "将删除最新的 {0} 条物资站建造记录，保留 {1} 条。实际建筑和资金不变，支出分析会随之变化。是否应用？",
+        ["Anwenden"] = "应用",
+        ["{0} Depot-Baueinträge entfernt – noch nicht gespeichert"] = "已移除 {0} 条物资站建造记录，尚未保存",
         ["Name"] = "名称", ["Slot"] = "存档槽", ["Gadgets"] = "辅助装备", ["Start"] = "开始",
         ["Warehouse"] = "仓库", ["Hayverest"] = "草峰（Hayverest）",
         ["Sprache"] = "语言",

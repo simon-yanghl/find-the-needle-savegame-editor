@@ -238,6 +238,26 @@ public static partial class Pages
         }
         var amber = Hex("#E8A15C");
         int ranksDepot = (int)(s.Ranks?.Num("depot") ?? 0), ranksDrone = (int)(s.Ranks?.Num("depot_drone") ?? 0), ranksShelf = (int)(s.Ranks?.Num("shelf_limits") ?? 0);
+        int historyCount = DepotHistory.Count(s);
+        double historyKeep = historyCount;
+        var historyInput = NumBox(historyKeep, v => historyKeep = v, 0, 0, historyCount, 100);
+        System.Windows.Automation.AutomationProperties.SetAutomationId(historyInput, "DepotHistoryKeepCount");
+        var historyApply = Btn("Historienzahl anwenden", () =>
+        {
+            Keyboard.ClearFocus();
+            int keep = (int)historyKeep, currentCount = DepotHistory.Count(s);
+            if (keep == currentCount) return;
+            if (!Dlg.Confirm("Depot-Bauhistorie kürzen", Loc.L("{0} neueste Depot-Baueinträge löschen und {1} behalten? Gebäude und Geld bleiben unverändert. Die Ausgabenanalyse ändert sich.", currentCount - keep, keep), "Anwenden", true)) return;
+            int removed = DepotHistory.Trim(s, keep);
+            Dirty(); Reload();
+            MainWindow.I.Toast(Loc.L("{0} Depot-Baueinträge entfernt – noch nicht gespeichert", removed));
+        }, "BtnAccent", "");
+        System.Windows.Automation.AutomationProperties.SetAutomationId(historyApply, "DepotHistoryApply");
+        var history = Card("Depot-Bauhistorie (Experiment)", V(
+            T(Loc.L("{0} vorhandene Depots · {1} Baueinträge", depots.Count, historyCount), 13, Ui.Text, true),
+            T("Experiment: Nur build/depot-Einträge in purchase_log kürzen. Ob das den Baupreis senkt, ist nicht bestätigt. Gebäude und Geld bleiben unverändert.", 12, Dim).Wrap().M(0, 6, 0, 8),
+            Flow(T("Baueinträge behalten", 12, Dim).M(0, 4, 10, 4), historyInput.M(0, 4, 10, 4), historyApply.M(0, 4, 0, 4)),
+            T("Nur 0 bis zur aktuellen Anzahl. Neueste Einträge werden zuerst entfernt; erst Speichern schreibt die Änderung. Keine fiktiven Käufe hinzufügen.", 11, Faint).Wrap().M(0, 6, 0, 0)), icon: "");
         var summary = Flow(
             Stat("Waren auf Lager", "", amber, () => ids.Count(i => Get(i) > 0).ToString(), () => Loc.L("von {0} Sorten", ids.Count)),
             Stat("Teile gesamt", "", Hay, () => Num(ids.Sum(i => (double)Get(i))), () => Loc.L("größter Posten: {0}", ids.Count == 0 ? "–" : GameData.GoodName(ids.OrderByDescending(Get).First()))),
@@ -325,6 +345,6 @@ public static partial class Pages
         var rulesCard = Card("Annahme-Regeln", rules, icon: "");
 
         RefreshAll(); ApplyFilter();
-        return Scroll(V(summary, tools.M(0, 4, 0, 14), body, Cols("*,18,*", depotCard, null, rulesCard).M(0, 10, 0, 0)));
+        return Scroll(V(summary, history.M(0, 4, 0, 10), tools.M(0, 4, 0, 14), body, Cols("*,18,*", depotCard, null, rulesCard).M(0, 10, 0, 0)));
     }
 }

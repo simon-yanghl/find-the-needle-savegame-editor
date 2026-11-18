@@ -5,6 +5,16 @@ public static class LocEn
 {
     public static readonly Dictionary<string, string> Map = new()
     {
+        ["Depot-Bauhistorie (Experiment)"] = "Depot build records (experiment)",
+        ["{0} vorhandene Depots · {1} Baueinträge"] = "{0} existing depots · {1} build records",
+        ["Experiment: Nur build/depot-Einträge in purchase_log kürzen. Ob das den Baupreis senkt, ist nicht bestätigt. Gebäude und Geld bleiben unverändert."] = "Experiment: trim only build/depot records in purchase_log. Whether this reduces build prices is unverified. Buildings and money stay unchanged.",
+        ["Baueinträge behalten"] = "Build records to retain",
+        ["Historienzahl anwenden"] = "Apply record count",
+        ["Nur 0 bis zur aktuellen Anzahl. Neueste Einträge werden zuerst entfernt; erst Speichern schreibt die Änderung. Keine fiktiven Käufe hinzufügen."] = "Range: 0 to current count. Newest records are removed first; Save writes the change to disk. No fabricated purchases are added.",
+        ["Depot-Bauhistorie kürzen"] = "Trim depot build records",
+        ["{0} neueste Depot-Baueinträge löschen und {1} behalten? Gebäude und Geld bleiben unverändert. Die Ausgabenanalyse ändert sich."] = "Delete the {0} newest depot build records and retain {1}? Buildings and money stay unchanged. Spending analysis will change.",
+        ["Anwenden"] = "Apply",
+        ["{0} Depot-Baueinträge entfernt – noch nicht gespeichert"] = "{0} depot build records removed – not saved yet",
         ["debug_used = false beim Speichern"] = "debug_used = false on save",
         ["debug_used wird beim Speichern immer auf false gesetzt."] = "Every save sets debug_used to false. Game and leaderboard behavior has not been verified.",
         ["gesperrt (beim Speichern false)"] = "fixed to false on save",

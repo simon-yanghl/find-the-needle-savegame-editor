@@ -187,7 +187,7 @@ public static class Ui
             // Formatting may display fewer digits than the stored value. Merely
             // focusing the field (including switching language) must not round it.
             if (tb.Text == Num(last, decimals)) return;
-            if (TryParse(tb.Text, out double v))
+            if (TryParse(tb.Text, out double v) && double.IsFinite(v))
             {
                 v = Math.Clamp(decimals == 0 ? Math.Round(v) : v, min, max);
                 if (v != last) { last = v; set(v); }

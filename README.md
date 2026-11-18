@@ -34,6 +34,8 @@ Upstream: [Yukitus86/find-the-needle-savegame-editor](https://github.com/Yukitus
 Every ordinary editor save writes `state.debug_used = false` as a Boolean, including when its old value is true or absent. This differs from upstream, which writes true. Game loading and leaderboard eligibility have not been verified. No claim of leaderboard eligibility is made.
 
 Automatic backups preserve the previous file. Restoring a backup and exporting decrypted data preserve their contents; ordinary Save applies the false policy. Career/profile.cfg remains read-only. The raw view still locks board_* and run_timed; debug_used is managed by Save.
+
+The Depot page also offers an experimental build-record count editor. It trims the newest `build/depot` purchase records while preserving buildings, balances and other purchases. This is a user-requested pricing experiment; a causal link between purchase history and build prices has not been verified.
 ## 📡 Haystack radar
 
 The pile hides 24 needles under metres of hay. The save stores the full height map of the pile and the exact position of every needle – the radar draws both.

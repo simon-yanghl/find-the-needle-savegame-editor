@@ -71,6 +71,19 @@ if (SaveGame.Load(falsePath).State.Get("debug_used")?.Bool != false)
 report["subsequentNormalSaveKeepsFalse"] = true;
 report["gameLoadTested"] = false;
 report["leaderboardTested"] = false;
+var zero = new SaveGame { Root = GdVar.FromFile(plain), Path = Path.Combine(testDir, "zero-depot-records.dat") };
+int beforeDepotHistory = DepotHistory.Count(zero);
+var expectedZero = new SaveGame { Root = GdVar.FromFile(plain) };
+expectedZero.State.Get("purchase_log")?.List?.RemoveAll(e => e.List is { Count: >= 5 } l && l[1].Str == "build" && l[2].Str == "depot");
+expectedZero.SyncMeta(); expectedZero.State.Set("debug_used", GdVar.NewBool(false));
+if (DepotHistory.Trim(zero, 0) != beforeDepotHistory) throw new Exception("Wrong depot history removal count.");
+zero.Save(backup: false);
+if (!SaveGame.Load(zero.Path).Root.ToFile().AsSpan().SequenceEqual(expectedZero.Root.ToFile()))
+    throw new Exception("Zero-history save changed buildings, money, other history or types.");
+report["depotHistoryBefore"] = beforeDepotHistory;
+report["depotHistoryAfter"] = DepotHistory.Count(SaveGame.Load(zero.Path));
+report["existingDepotsPreserved"] = zero.Buildings.Count(b => b["type"]?.Str == "depot");
+report["zeroHistoryOnlyExpectedChanges"] = true;
 if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(source))) != hash)
     throw new Exception("Source changed during testing.");
 report["sourceUnchanged"] = true;

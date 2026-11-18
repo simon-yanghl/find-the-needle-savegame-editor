@@ -3,6 +3,7 @@
   <ItemGroup>
     <Compile Include="../../src/GdVariant.cs" Link="GdVariant.cs" />
     <Compile Include="../../src/SaveFile.cs" Link="SaveFile.cs" />
+    <Compile Include="../../src/DepotHistory*.cs" Link="%(Filename)%(Extension)" />
     <Compile Include="../../src/Loc*.cs" Link="%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

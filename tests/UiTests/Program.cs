@@ -123,6 +123,42 @@ internal static class Program
                 }
             }
             Console.WriteLine("PASS minimum-width critical toolbar controls in all three languages");
+            typeof(MainWindow).GetMethod("SwitchLang", Private).Invoke(w, new object[] { "zh-CN" }); Pump(); w = (MainWindow)app.MainWindow;
+            var depotPage = ((IEnumerable)typeof(MainWindow).GetField("pages", Private).GetValue(w)).Cast<object>().Single(p => (string)p.GetType().GetProperty("Key").GetValue(p) == "depot");
+            navigate.Invoke(w, new[] { depotPage }); Pump();
+            int initialHistory = DepotHistory.Count(w.Save);
+            Assert(initialHistory > 0, "depot history fixture needs existing records");
+            var expectedHistoryRoot = GdVar.FromFile(w.Save.Root.ToFile());
+            var expectedHistoryLog = expectedHistoryRoot["state"]["purchase_log"].List;
+            int lastDepot = expectedHistoryLog.FindLastIndex(e => e.List is { Count: >= 5 } l && l[1].Str == "build" && l[2].Str == "depot"); expectedHistoryLog.RemoveAt(lastDepot);
+            var historyInput = Desc<TextBox>(w).Single(t => System.Windows.Automation.AutomationProperties.GetAutomationId(t) == "DepotHistoryKeepCount");
+            var historyApply = Desc<Button>(w).Single(t => System.Windows.Automation.AutomationProperties.GetAutomationId(t) == "DepotHistoryApply");
+            w.Activate(); historyInput.Focus(); Keyboard.Focus(historyInput); Pump(); Assert(historyInput.IsKeyboardFocused, "history edit focus failed");
+            historyInput.Text = "NaN";
+            bool invalidDialog = false;
+            var invalidTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            invalidTimer.Tick += (_, _) => { foreach (var dialog in app.Windows.OfType<Window>().Where(x => x != w).ToArray()) { invalidDialog = true; dialog.Close(); } invalidTimer.Stop(); };
+            invalidTimer.Start(); historyApply.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)); Pump(); invalidTimer.Stop();
+            Assert(!invalidDialog && DepotHistory.Count(w.Save) == initialHistory, "NaN history input should reset without confirmation or mutation");
+            Console.WriteLine("PASS non-finite history input rejected without confirmation or mutation");
+            w.Activate(); historyInput.Focus(); Keyboard.Focus(historyInput); Pump();
+            historyInput.Text = (initialHistory - 1).ToString();
+            var confirmTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            confirmTimer.Tick += (_, _) =>
+            {
+                var confirm = app.Windows.OfType<Window>().Where(dialog => dialog != w).SelectMany(dialog => Desc<Button>(dialog)).FirstOrDefault(b => b.Content as string == Loc.L("Anwenden"));
+                if (confirm != null) { confirmTimer.Stop(); confirm.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)); }
+            };
+            confirmTimer.Start(); historyApply.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)); Pump(); confirmTimer.Stop();
+            Assert(DepotHistory.Count(w.Save) == initialHistory - 1 && w.Save.Dirty, "history apply did not commit pending input");
+            Assert(w.Save.Root.ToFile().AsSpan().SequenceEqual(expectedHistoryRoot.ToFile()), "history UI changed buildings, money or unrelated fields");
+            typeof(MainWindow).GetMethod("SwitchLang", Private).Invoke(w, new object[] { "en" }); Pump(); w = (MainWindow)app.MainWindow;
+            Assert(DepotHistory.Count(w.Save) == initialHistory - 1 && w.Save.Dirty, "history edit lost on language switch");
+            byte[] beforeHistorySave = File.ReadAllBytes(copy); string historyBackup = w.Save.Save();
+            Assert(File.ReadAllBytes(historyBackup).AsSpan().SequenceEqual(beforeHistorySave), "history save backup changed original bytes");
+            Assert(SaveGame.Load(copy).Root.ToFile().AsSpan().SequenceEqual(w.Save.Root.ToFile()), "history save/reread not exact");
+            Assert(SaveGame.Load(copy).State.Get("debug_used") is { Type: GdVar.BOOL, Bool: false }, "history save lost false policy");
+            Console.WriteLine("PASS depot history UI trims latest record only, preserves buildings/money, survives language switch and saves with exact backup/reread");
             // Real WPF dialog layout, auto-close with dispatcher; no disk action occurs.
             Loc.Set("zh-CN", false);
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };

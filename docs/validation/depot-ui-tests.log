@@ -1,0 +1,9 @@
+PASS EN/DE/中文: focused text and number edits, dirty state and Save instance retained
+PASS language change preserves undisplayed numeric precision when input is unchanged
+PASS all pages built after repeated language changes
+PASS Chinese technology search
+PASS current page retained and minimum/maximized windows rendered
+PASS minimum-width critical toolbar controls in all three languages
+PASS non-finite history input rejected without confirmation or mutation
+PASS depot history UI trims latest record only, preserves buildings/money, survives language switch and saves with exact backup/reread
+PASS Chinese discard dialog rendered
